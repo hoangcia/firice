@@ -1,0 +1,1 @@
+This file serves a purpose of copying library SDL2.dll to output directory (See properties of this file | Custom build action)
