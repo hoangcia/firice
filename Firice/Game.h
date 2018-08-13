@@ -16,7 +16,14 @@ private:
 	SDL_Renderer* mRenderer;
 
 	SDL_Surface* mSpriteFire;
-	SDL_Texture* mTexture;
+	SDL_Texture* mFireTexture;
+	
+	SDL_Surface* mBackground;
+	SDL_Texture* mBackgroundTexture;
+
+
+	SDL_Surface* mBlock;
+	SDL_Texture* mBlockTexture;
 	
 	unsigned short mFrame = 0;	
 

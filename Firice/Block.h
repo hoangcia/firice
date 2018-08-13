@@ -11,9 +11,8 @@ class Block {
 		Vector2 _basePosition;
 
 		uInt _width;
-		uInt _height;
+		uInt _height;		
 
-		
 	protected:
 
 	public:

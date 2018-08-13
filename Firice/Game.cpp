@@ -37,9 +37,16 @@ bool Game::Initialize() {
 		SDL_Log("Failed to create renderer: %s", SDL_GetError());
 		return false;
 	}
+	//load game background
+	mBackground = IMG_Load(".\\assets\\BG\\BG.png");
+	mBackgroundTexture = SDL_CreateTextureFromSurface(mRenderer, mBackground);
+
+	//load game block
+	mBlock = IMG_Load(".\\assets\\Tiles\\1.png");
+	mBlockTexture = SDL_CreateTextureFromSurface(mRenderer, mBlock);
 	//load game sprite
-	mSpriteFire = IMG_Load("sprite_fire.png");
-	mTexture = SDL_CreateTextureFromSurface(mRenderer, mSpriteFire);	
+	mSpriteFire = IMG_Load(".\\assets\\sprite_fire.png");
+	mFireTexture = SDL_CreateTextureFromSurface(mRenderer, mSpriteFire);	
 
 	mFrame = 0;
 
@@ -132,26 +139,39 @@ void Game::ProcessInput() {
 	}
 }
 void Game::GenerateOutput() {
-	
-	SDL_SetRenderDrawColor(
-		mRenderer,
-		66,  // R
-		138,  // G
-		244,// B
-		255 // A
-	);
-	SDL_RenderClear(mRenderer);		
-	
-	SDL_RendererFlip flipType = mCurrentDirection.X < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-	SDL_SetRenderDrawColor(mRenderer, 201, 67, 6, 255);
+	SDL_RenderClear(mRenderer);		
+		
+	//draw background
+	SDL_Rect srcBgRect = { 0,0,1000,750 };
+	SDL_Rect dstBgRect = { 0,0,1000,750 };
+	SDL_RenderCopy(mRenderer, mBackgroundTexture, &srcBgRect, &dstBgRect);
+
+	//draw block	
+	
+	SDL_Rect srcBlockRect = { 0, 0, FRAME_WIDTH, FRAME_HEIGHT };
+	SDL_Rect dstBlockRect = { 0, 0, FRAME_WIDTH, FRAME_HEIGHT };
+
+	SDL_BlitScaled(mBlock, &srcBlockRect, mBlock, &dstBlockRect);
+				
+	mBlockTexture = SDL_CreateTextureFromSurface(mRenderer, mBlock);
+	for (int i = 0; i < 10; i++) {
+		SDL_RenderCopy(mRenderer, mBlockTexture, &srcBlockRect, &dstBlockRect);
+		dstBlockRect.x = i*FRAME_WIDTH;
+	}
+	//draw map
+
+	//draw fire character
+	SDL_RendererFlip flipType = mCurrentDirection.X < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;	
 
 	Vector2 topLeft = { (mFrame % 4) * FRAME_WIDTH, (mFrame / 4) * FRAME_HEIGHT };		
 
 	SDL_Rect srcrect = { topLeft.X, topLeft.Y, FRAME_WIDTH, FRAME_HEIGHT };
 	SDL_Rect dstrect = { mFirePos.X - FRAME_WIDTH/2.0f, mFirePos.Y - FRAME_HEIGHT/2.0f, FRAME_WIDTH, FRAME_HEIGHT };
 	
-	SDL_RenderCopyEx(mRenderer, mTexture, &srcrect, &dstrect, 0, NULL, flipType);
+	SDL_RenderCopyEx(mRenderer, mFireTexture, &srcrect, &dstrect, 0, NULL, flipType);
+
+	//bring to front buffer
 	SDL_RenderPresent(mRenderer);
 }
 
