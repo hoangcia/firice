@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 
 #include "CommonTypes.h"
+#include "Map.h"
 
 class Game {
 private:
@@ -35,16 +36,20 @@ private:
 
 	bool mIsRunning;	
 	Vector2 mFirePos;
-	
+
+	Map mMap;
 
 	const uInt SCREEN_WIDTH = 1024;
 	const uInt SCREEN_HEIGHT = 768;
 	const uInt LIMIT_FPS = 60;
 	const uInt SPRITE_FRAME_LIMIT_FPS = 30;
 	const uInt SPRITE_FRAME_LIMIT = 16;
-	const float DEFAUT_CHARACTER_VELOCITY = 300.0f;
+	const float DEFAUT_CHARACTER_VELOCITY = 300.0f; //Pixels per second
 	const uInt FRAME_WIDTH = 60;
 	const uInt FRAME_HEIGHT = 60;
+	const Uint32 BG_WIDTH = 1000;
+	const Uint32 BG_HEIGHT = 750;
+
 public:
 	Game();
 	~Game();

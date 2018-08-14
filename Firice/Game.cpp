@@ -111,7 +111,9 @@ void Game::ProcessInput() {
 		switch (event.type) {
 			case SDL_QUIT: 
 				mIsRunning = false;
-				break;			
+				break;
+			
+			default: break;
 		}
 
 		//Get state of keyboard
@@ -128,7 +130,8 @@ void Game::ProcessInput() {
 		else if (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S]) {			
 			mDirection.Y = 1;			
 		}						
-		else if (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_A]) {
+
+		if (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_A]) {
 			mDirection.X = -1;
 			mCurrentDirection.X = mDirection.X;
 		}
@@ -143,8 +146,9 @@ void Game::GenerateOutput() {
 	SDL_RenderClear(mRenderer);		
 		
 	//draw background
-	SDL_Rect srcBgRect = { 0,0,1000,750 };
-	SDL_Rect dstBgRect = { 0,0,1000,750 };
+	SDL_Rect srcBgRect = { 0,0, BG_WIDTH, BG_HEIGHT };
+	SDL_Rect dstBgRect = { 0,0, BG_WIDTH, BG_HEIGHT };
+
 	SDL_RenderCopy(mRenderer, mBackgroundTexture, &srcBgRect, &dstBgRect);
 
 	//draw block	
