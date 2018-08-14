@@ -60,6 +60,7 @@ public:
 	bool Run();
 	bool Pause();
 	bool Resume();
+	bool LoadMap(int level);
 	//Shutdown the game
 	void Shutdown();			
 };

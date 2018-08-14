@@ -5,5 +5,10 @@ struct Vector2 {
 	int X;
 	int Y;
 };
-typedef short* shortArr;
-typedef shortArr* shortMatrix;
+struct Size
+{
+	uInt Width;
+	uInt Height;
+};
+typedef char* arr;
+typedef arr* matrix;

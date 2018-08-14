@@ -48,6 +48,16 @@ bool Game::Initialize() {
 	mSpriteFire = IMG_Load(".\\assets\\sprite_fire.png");
 	mFireTexture = SDL_CreateTextureFromSurface(mRenderer, mSpriteFire);	
 
+
+	//load map
+	matrix data = new arr[100];
+	for(uInt i = 0; i < 100; i++)
+	{
+		data[i] = new char[100];
+	}	
+	char* path = "map.txt";
+	Map::ReadFromFile(path, data);
+	
 	mFrame = 0;
 
 	mFirePos = { 300,300 };

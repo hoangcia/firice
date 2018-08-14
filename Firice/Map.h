@@ -3,11 +3,14 @@
 
 class Map {
 private:
-	shortMatrix mMapData;
+	matrix mMapData;
 	
 public:
-	bool SetMapData(shortMatrix data);
-	unsigned short Width;
-	unsigned short Height;
+	Map();
+	~Map();
+	bool Initialize(matrix data, Size size, int lvl);
+	unsigned short Level;	
+	Size Size;
 
+	static matrix ReadFromFile(char* filePath, matrix data);
 };
