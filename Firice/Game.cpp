@@ -196,7 +196,7 @@ void Game::GenerateOutput() {
 			short imgIdx = *(data[0] + r * mMap.Size.Width + c);
 			if (imgIdx) {
 				SDL_BlitScaled(mBlock[imgIdx-1], &srcBlockRect, mBlock[imgIdx-1], &dstBlockRect);
-				if (imgIdx == 18) {
+				if (imgIdx == 18 || imgIdx == 17) {
 					dstBlockRectRender.x -= FRAME_WIDTH;
 					SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
 					short prev = *(data[0] + r * mMap.Size.Width + c - 1);
@@ -206,11 +206,13 @@ void Game::GenerateOutput() {
 					SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
 
 					dstBlockRectRender.x += FRAME_WIDTH;
-					SDL_RenderCopy(mRenderer, mBlockTexture[prev - 1], &srcBlockRect, &dstBlockRectRender);
+					SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
 
 					dstBlockRectRender.x -= FRAME_WIDTH;
 				}
-				SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
+				else {
+					SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
+				}
 			}			
 		}
 	}	
