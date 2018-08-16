@@ -124,6 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Map.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="Game.cpp" />
   </ItemGroup>

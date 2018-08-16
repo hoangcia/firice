@@ -28,22 +28,40 @@ bool Map::Initialize(matrix data, ::Size size, int lvl)
 	return true;
 }
 
-matrix Map::ReadFromFile(char* filePath, matrix data)
+matrix Map::ReadFromFile(string filePath, matrix& data, uInt rows, uInt cols)
 {
 	ifstream inputFile;
-	inputFile.open("map.txt", ifstream::in);
-	
+	inputFile.open(filePath, ifstream::in);	
+	data = new unsigned short*[1];
+
+	*data = new unsigned short[rows * cols];
+
 	if(inputFile)
 	{
-		char value ;
-		while(inputFile >> value)
-		{
-			cout << value;
+		unsigned short value;
+		for (uInt r = 0; r < rows; ++r) {
+			
+			for (uInt c = 0; c < cols; ++c) {
+				if (inputFile >> value) {
+					*(*data + (r * cols + c)) = value;
+				}
+				else {
+					inputFile.close();
+					return data;
+				}
+			}
 		}
-		
 		inputFile.close();
 	}
 
 	return data;
 }
 
+bool Map::SetData(matrix data) {
+	mMapData = data;
+	return true;
+}
+
+matrix Map::GetData() {	
+	return mMapData;
+}

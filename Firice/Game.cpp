@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
+#include <string>
 
 #include "CommonTypes.h"
 #include "Game.h"
@@ -29,7 +30,7 @@ bool Game::Initialize() {
 
 	//create renderer
 	mRenderer = SDL_CreateRenderer(
-	mWindow,
+		mWindow,
 		-1,
 		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
 	);
@@ -41,23 +42,41 @@ bool Game::Initialize() {
 	mBackground = IMG_Load(".\\assets\\BG\\BG.png");
 	mBackgroundTexture = SDL_CreateTextureFromSurface(mRenderer, mBackground);
 
-	//load game block
-	mBlock = IMG_Load(".\\assets\\Tiles\\1.png");
-	mBlockTexture = SDL_CreateTextureFromSurface(mRenderer, mBlock);
+	//load game block	
+	for (ushort idx = 1; idx <= 18; ++idx) {
+		string path = ".\\assets\\Tiles\\";
+		path.append(std::to_string(idx));
+		path.append(".png");
+		mBlock[idx-1] = IMG_Load(path.c_str());
+		
+		mBlockTexture[idx - 1] = SDL_CreateTextureFromSurface(mRenderer, mBlock[idx - 1]);
+	}
+		
 	//load game sprite
 	mSpriteFire = IMG_Load(".\\assets\\sprite_fire.png");
-	mFireTexture = SDL_CreateTextureFromSurface(mRenderer, mSpriteFire);	
+	mFireTexture = SDL_CreateTextureFromSurface(mRenderer, mSpriteFire);
 
 
 	//load map
-	matrix data = new arr[100];
-	for(uInt i = 0; i < 100; i++)
-	{
-		data[i] = new char[100];
-	}	
-	char* path = "map.txt";
-	Map::ReadFromFile(path, data);
 	
+		
+	std::string path = PREFIX_MAP_NAME;
+	path.append(".txt");
+
+	mMap.Size.Width = DEFAULT_MAP_WIDTH;
+	mMap.Size.Height = DEFAULT_MAP_HEIGHT;
+
+	matrix data = nullptr;
+
+	Map::ReadFromFile(path, data, mMap.Size.Height, mMap.Size.Width);
+	mMap.SetData(data);
+	for (uInt r = 0; r < mMap.Size.Height; ++r) {
+		for (uInt c = 0; c < mMap.Size.Width; ++c) {
+			printf("%d ", *(mMap.GetData()[0] + r * mMap.Size.Width + c));
+		}
+		printf("\n");
+	}
+
 	mFrame = 0;
 
 	mFirePos = { 300,300 };
@@ -161,19 +180,40 @@ void Game::GenerateOutput() {
 
 	SDL_RenderCopy(mRenderer, mBackgroundTexture, &srcBgRect, &dstBgRect);
 
-	//draw block	
-	
-	SDL_Rect srcBlockRect = { 0, 0, FRAME_WIDTH, FRAME_HEIGHT };
-	SDL_Rect dstBlockRect = { 0, 0, FRAME_WIDTH, FRAME_HEIGHT };
-
-	SDL_BlitScaled(mBlock, &srcBlockRect, mBlock, &dstBlockRect);
-				
-	mBlockTexture = SDL_CreateTextureFromSurface(mRenderer, mBlock);
-	for (int i = 0; i < 10; i++) {
-		SDL_RenderCopy(mRenderer, mBlockTexture, &srcBlockRect, &dstBlockRect);
-		dstBlockRect.x = i*FRAME_WIDTH;
-	}
 	//draw map
+	
+	SDL_Rect srcBlockRect = { 0, 0, DEFAULT_SPRITE_FRAME_WIDTH, DEFAULT_SPRITE_FRAME_HEIGHT };
+	SDL_Rect dstBlockRect = { 0, 0, FRAME_WIDTH, FRAME_HEIGHT };
+	SDL_Rect dstBlockRectRender = { 0, 0, FRAME_WIDTH, FRAME_HEIGHT };
+
+	matrix data = mMap.GetData();
+
+	for (int r = 0; r < mMap.Size.Height; ++r) {
+		dstBlockRectRender.y = r * FRAME_HEIGHT;
+		for (int c = 0; c < mMap.Size.Width; ++c) {
+			//mBlockTexture = SDL_CreateTextureFromSurface(mRenderer, mBlock);
+			dstBlockRectRender.x = c * FRAME_WIDTH;
+			short imgIdx = *(data[0] + r * mMap.Size.Width + c);
+			if (imgIdx) {
+				SDL_BlitScaled(mBlock[imgIdx-1], &srcBlockRect, mBlock[imgIdx-1], &dstBlockRect);
+				if (imgIdx == 18) {
+					dstBlockRectRender.x -= FRAME_WIDTH;
+					SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
+					short prev = *(data[0] + r * mMap.Size.Width + c - 1);
+					SDL_RenderCopy(mRenderer, mBlockTexture[prev - 1], &srcBlockRect, &dstBlockRectRender);
+
+					dstBlockRectRender.x += FRAME_WIDTH;
+					SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
+
+					dstBlockRectRender.x += FRAME_WIDTH;
+					SDL_RenderCopy(mRenderer, mBlockTexture[prev - 1], &srcBlockRect, &dstBlockRectRender);
+
+					dstBlockRectRender.x -= FRAME_WIDTH;
+				}
+				SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
+			}			
+		}
+	}	
 
 	//draw fire character
 	SDL_RendererFlip flipType = mCurrentDirection.X < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;	

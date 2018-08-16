@@ -1,7 +1,29 @@
 #pragma once
 #include "CommonTypes.h"
 
-enum BLOCK_TYPE {None, Character, Brick, Water, Lava};
+enum BLOCK_TYPE {
+	None = 0,
+	Soil_1,
+	Soil_2,
+	Soil_3,
+	Soil_4,
+	Soil_5,
+	Soil_6,
+	Soil_7,
+	Soil_8,
+	Soil_9,
+	Soil_10,
+	Soil_11,
+	Soil_12,
+	Soil_13,
+	Soil_14,
+	Soil_15,
+	Soil_16,
+	Water_17,
+	Water_18,
+	CFire, //Character Fire
+	CIce //Character Ice
+};
 
 class Block {
 	private:

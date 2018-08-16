@@ -10,5 +10,5 @@ struct Size
 	uInt Width;
 	uInt Height;
 };
-typedef char* arr;
+typedef unsigned short* arr;
 typedef arr* matrix;
