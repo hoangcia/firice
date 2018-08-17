@@ -18,7 +18,10 @@ private:
 
 	SDL_Surface* mSpriteFire;
 	SDL_Texture* mFireTexture;
-	
+
+	SDL_Surface* mSpriteIce;
+	SDL_Texture* mIceTexture;
+
 	SDL_Surface* mBackground;
 	SDL_Texture* mBackgroundTexture;
 
@@ -36,6 +39,7 @@ private:
 
 	bool mIsRunning;	
 	Vector2 mFirePos;
+	Vector2 mIcePos;
 
 	Map mMap;
 

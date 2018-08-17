@@ -31,19 +31,20 @@ bool Map::Initialize(matrix data, ::Size size, int lvl)
 matrix Map::ReadFromFile(string filePath, matrix& data, uInt rows, uInt cols)
 {
 	ifstream inputFile;
-	inputFile.open(filePath, ifstream::in);	
-	data = new unsigned short*[1];
+	inputFile.open(filePath, ifstream::in);
+	delete data;
 
-	*data = new unsigned short[rows * cols];
+	data = new unsigned short*[rows];	
 
 	if(inputFile)
 	{
 		unsigned short value;
 		for (uInt r = 0; r < rows; ++r) {
-			
+			data[r] = new unsigned short[cols];
 			for (uInt c = 0; c < cols; ++c) {
 				if (inputFile >> value) {
-					*(*data + (r * cols + c)) = value;
+					//*(*data + (r * cols + c)) = value;
+					*(data[r] + c) = value;
 				}
 				else {
 					inputFile.close();

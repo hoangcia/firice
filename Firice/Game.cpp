@@ -1,4 +1,4 @@
-#include <SDL.h>
+﻿#include <SDL.h>
 #include <SDL_image.h>
 #include <string>
 
@@ -56,6 +56,8 @@ bool Game::Initialize() {
 	mSpriteFire = IMG_Load(".\\assets\\sprite_fire.png");
 	mFireTexture = SDL_CreateTextureFromSurface(mRenderer, mSpriteFire);
 
+	mSpriteIce = IMG_Load(".\\assets\\sprite_fire.png");
+	mIceTexture = SDL_CreateTextureFromSurface(mRenderer, mSpriteIce);
 
 	//load map
 	
@@ -70,16 +72,22 @@ bool Game::Initialize() {
 
 	Map::ReadFromFile(path, data, mMap.Size.Height, mMap.Size.Width);
 	mMap.SetData(data);
-	for (uInt r = 0; r < mMap.Size.Height; ++r) {
-		for (uInt c = 0; c < mMap.Size.Width; ++c) {
-			printf("%d ", *(mMap.GetData()[0] + r * mMap.Size.Width + c));
+
+	for (int r = 0; r < mMap.Size.Height; ++r) {
+		for (int c = 0; c < mMap.Size.Width; ++c) {
+			if (data[r][c] == static_cast<unsigned short>(BLOCK_TYPE::CFire)) {
+				mFirePos = { static_cast<int>(FRAME_WIDTH) * c + static_cast<int>(FRAME_WIDTH / 2), static_cast<int>(FRAME_HEIGHT) * r + static_cast<int>(FRAME_HEIGHT / 2) };
+			}
+			if (data[r][c] == static_cast<unsigned short>(BLOCK_TYPE::CIce)) {
+				mIcePos = { static_cast<int>(FRAME_WIDTH) * c + static_cast<int>(FRAME_WIDTH / 2), static_cast<int>(FRAME_HEIGHT) * r + static_cast<int>(FRAME_HEIGHT / 2) };
+			}
+			printf("%d ", data[r][c]);
 		}
 		printf("\n");
 	}
 
 	mFrame = 0;
 
-	mFirePos = { 300,300 };
 	return true;
 }
 bool Game::Run() { 
@@ -131,6 +139,24 @@ void Game::Update() {
 		}
 		else if (mFirePos.Y >(SCREEN_HEIGHT - FRAME_HEIGHT / 2.0f)) {
 			mFirePos.Y = (SCREEN_HEIGHT - FRAME_HEIGHT / 2.0f);
+		}
+		//mIcePos
+
+		mIcePos.X -= mDirection.X * DEFAUT_CHARACTER_VELOCITY * deltaTime;
+		mIcePos.Y += mDirection.Y * DEFAUT_CHARACTER_VELOCITY * deltaTime;
+
+		if (mIcePos.X < (FRAME_WIDTH / 2.0f)) {
+			mIcePos.X = FRAME_WIDTH / 2.0f;
+		}
+		else if (mIcePos.X >(SCREEN_WIDTH - FRAME_WIDTH / 2.0f)) {
+			mIcePos.X = (SCREEN_WIDTH - FRAME_WIDTH / 2.0f);
+		}
+
+		if (mIcePos.Y < (FRAME_HEIGHT / 2.0f)) {
+			mIcePos.Y = FRAME_HEIGHT / 2.0f;
+		}
+		else if (mIcePos.Y >(SCREEN_HEIGHT - FRAME_HEIGHT / 2.0f)) {
+			mIcePos.Y = (SCREEN_HEIGHT - FRAME_HEIGHT / 2.0f);
 		}
 	}
 }
@@ -193,13 +219,15 @@ void Game::GenerateOutput() {
 		for (int c = 0; c < mMap.Size.Width; ++c) {
 			//mBlockTexture = SDL_CreateTextureFromSurface(mRenderer, mBlock);
 			dstBlockRectRender.x = c * FRAME_WIDTH;
-			short imgIdx = *(data[0] + r * mMap.Size.Width + c);
-			if (imgIdx) {
-				SDL_BlitScaled(mBlock[imgIdx-1], &srcBlockRect, mBlock[imgIdx-1], &dstBlockRect);
-				if (imgIdx == 18 || imgIdx == 17) {
+			short imgIdx = data[r][c];
+			short prev = data[r][c ? c - 1 : c];
+
+			switch (imgIdx){
+			case Water_17:
+			case Water_18:
+					SDL_BlitScaled(mBlock[imgIdx - 1], &srcBlockRect, mBlock[imgIdx - 1], &dstBlockRect);				
 					dstBlockRectRender.x -= FRAME_WIDTH;
-					SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
-					short prev = *(data[0] + r * mMap.Size.Width + c - 1);
+					SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);				 
 					SDL_RenderCopy(mRenderer, mBlockTexture[prev - 1], &srcBlockRect, &dstBlockRectRender);
 
 					dstBlockRectRender.x += FRAME_WIDTH;
@@ -209,24 +237,36 @@ void Game::GenerateOutput() {
 					SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
 
 					dstBlockRectRender.x -= FRAME_WIDTH;
-				}
-				else {
+					break;
+			case CFire: 
+
+			case CIce: break;
+			default:
 					SDL_RenderCopy(mRenderer, mBlockTexture[imgIdx - 1], &srcBlockRect, &dstBlockRectRender);
-				}
+					break;				
 			}			
 		}
 	}	
 
 	//draw fire character
-	SDL_RendererFlip flipType = mCurrentDirection.X < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;	
+	SDL_RendererFlip fỉeFlipType = mCurrentDirection.X < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;	
 
-	Vector2 topLeft = { (mFrame % 4) * FRAME_WIDTH, (mFrame / 4) * FRAME_HEIGHT };		
+	Vector2 topLeftFire = { (mFrame % 4) * FRAME_WIDTH, (mFrame / 4) * FRAME_HEIGHT };		
 
-	SDL_Rect srcrect = { topLeft.X, topLeft.Y, FRAME_WIDTH, FRAME_HEIGHT };
-	SDL_Rect dstrect = { mFirePos.X - FRAME_WIDTH/2.0f, mFirePos.Y - FRAME_HEIGHT/2.0f, FRAME_WIDTH, FRAME_HEIGHT };
+	SDL_Rect srcrectFire = { topLeftFire.X, topLeftFire.Y, FRAME_WIDTH, FRAME_HEIGHT };
+	SDL_Rect dstrectFire = { mFirePos.X - FRAME_WIDTH/2.0f, mFirePos.Y - FRAME_HEIGHT/2.0f, FRAME_WIDTH, FRAME_HEIGHT };
 	
-	SDL_RenderCopyEx(mRenderer, mFireTexture, &srcrect, &dstrect, 0, NULL, flipType);
+	SDL_RenderCopyEx(mRenderer, mFireTexture, &srcrectFire, &dstrectFire, 0, NULL, fỉeFlipType);
 
+	//draw fire character
+	SDL_RendererFlip iceFlipType = mCurrentDirection.X < 0 ?  SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
+
+	Vector2 topLeftIce = { (mFrame % 4) * FRAME_WIDTH, (mFrame / 4) * FRAME_HEIGHT };
+
+	SDL_Rect srcrectIce= { topLeftIce.X, topLeftIce.Y, FRAME_WIDTH, FRAME_HEIGHT };
+	SDL_Rect dstrectIce = { mIcePos.X - FRAME_WIDTH / 2.0f, mIcePos.Y - FRAME_HEIGHT / 2.0f, FRAME_WIDTH, FRAME_HEIGHT };
+
+	SDL_RenderCopyEx(mRenderer, mFireTexture, &srcrectIce, &dstrectIce, 0, NULL, iceFlipType);
 	//bring to front buffer
 	SDL_RenderPresent(mRenderer);
 }
