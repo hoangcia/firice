@@ -5,6 +5,10 @@ struct Point2
 	int x;
 	int y;
 };
+struct Vector2 {
+	int x;
+	int y;
+};
 struct Size
 {	
 	unsigned int width;

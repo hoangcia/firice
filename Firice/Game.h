@@ -31,7 +31,7 @@ public:
 	
 	void render();
 
-	bool running() { return isRunning; }
+	bool running() const { return isRunning; }
 };
 
 #endif

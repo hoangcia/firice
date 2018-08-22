@@ -11,6 +11,12 @@ GameObject::~GameObject()
 {
 }
 
+void GameObject::setCenter(int x, int y)
+{
+	center.x = x;
+	center.y = y;
+}
+
 void GameObject::draw(SDL_Renderer * renderer, SDL_Texture * texture, SDL_RendererFlip flip)
 {
 }

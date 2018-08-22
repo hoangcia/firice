@@ -2,7 +2,7 @@
 #define CONSTANTS_H
 
 const unsigned int LIMIT_FPS = 60;
-const unsigned int LIMIT_ANIMATED_FPS = 4;
+const unsigned int LIMIT_ANIMATED_FPS = 6;
 const unsigned long SECONDS_PER_FRAME = 1000 / LIMIT_FPS;
 const unsigned int DEFAULT_SCREEN_WIDTH = 1024;
 const unsigned int DEFAULT_SCREEN_HEIGHT = 768;
