@@ -1,6 +1,8 @@
 #include "Game.h"
 #include <iostream>
 #include "Constants.h"
+#include <SDL_image.h>
+#include "Mage.h"
 
 Game::Game()
 {
@@ -52,6 +54,8 @@ bool Game::initialize(const char* title, Point2 position, Size screenSize, int f
 	charFire = new Mage(Size{ ANIMATED_FRAME_WIDTH, ANIMATED_FRAME_HEIGHT }, Point2{100,100});
 	charIce = new Mage(Size{ ANIMATED_FRAME_WIDTH, ANIMATED_FRAME_HEIGHT }, Point2{300,300});
 	
+	charFire->LastTime = SDL_GetTicks();
+	charIce->LastTime = SDL_GetTicks();
 
 	isRunning = true;
 
@@ -62,6 +66,7 @@ void Game::run()
 	Uint32 startTime = 0;	
 	Uint32 count = 0;
 	Uint32 frameTime = 0;
+	currentCharDirection = { 1,0 };
 
 	while(running())
 	{
@@ -83,39 +88,78 @@ void Game::processInput()
 {
 	SDL_Event event;
 	const Uint8* keyStates = nullptr;
+	
 
 	while(SDL_PollEvent(&event))
 	{
-		switch(event.type)
+		switch (event.type)
 		{
-			case SDL_QUIT: 
-				isRunning = false; 
+			case SDL_QUIT:
+				isRunning = false;
 				break;
-			case SDL_KEYDOWN:
-				keyStates = SDL_GetKeyboardState(nullptr);
-				if (keyStates[SDL_SCANCODE_ESCAPE])
-				{
-					isRunning = false;
-				}
-				break;
+			
+			case SDL_KEYUP:
+				break;					
 			default: break;
 		}
-		
+
+		charDirection = { 0,0 };
+		keyStates = SDL_GetKeyboardState(nullptr);
+
+		if (keyStates[SDL_SCANCODE_ESCAPE])
+		{
+			isRunning = false;
+		}
+
+		if (keyStates[SDL_SCANCODE_A] || keyStates[SDL_SCANCODE_LEFT])
+		{
+			charDirection.x = -1;
+			currentCharDirection.x = -1;
+		}
+		else if (keyStates[SDL_SCANCODE_D] || keyStates[SDL_SCANCODE_RIGHT])
+		{
+			charDirection.x = 1;
+			currentCharDirection.x = 1;
+		}
+
+		if (keyStates[SDL_SCANCODE_W] || keyStates[SDL_SCANCODE_UP])
+		{
+			charDirection.y = -1;
+			currentCharDirection.y = -1;
+		}
+		else if (keyStates[SDL_SCANCODE_S] || keyStates[SDL_SCANCODE_DOWN])
+		{
+			charDirection.y = 1;
+			currentCharDirection.y = 1;
+		}
 	}
 }
 void Game::update()
 {
-	charFire->update(SDL_GetTicks());
-	charIce->update(SDL_GetTicks());
+	if (charDirection.x != 0 || charDirection.y != 0) {
+		Vector2 revertedDirectionX = { -1 * charDirection.x, charDirection.y };
+		charFire->update(SDL_GetTicks(), charDirection);
+		charIce->update(SDL_GetTicks(), revertedDirectionX);
+	}
+	else
+	{
+		charFire->Status = CHARACTER_STATUS::Idle;
+		charIce->Status = CHARACTER_STATUS::Idle;
+
+		charFire->update(SDL_GetTicks());
+		charIce->update(SDL_GetTicks());
+	}
 }
 void Game::render()
 {
 	SDL_RenderClear(renderer);
 
 	SDL_SetRenderDrawColor(renderer, 34, 128, 200, SDL_ALPHA_OPAQUE);
+	
+	SDL_RendererFlip flip = currentCharDirection.x < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-	charFire->draw(renderer, fireTexture, SDL_FLIP_NONE);
-	charIce->draw(renderer, iceTexture, SDL_FLIP_NONE);
+	charFire->draw(renderer, fireTexture, flip);
+	charIce->draw(renderer, iceTexture, flip == SDL_FLIP_NONE ? SDL_FLIP_HORIZONTAL: SDL_FLIP_NONE);
 
 	SDL_RenderPresent(renderer);
 }
