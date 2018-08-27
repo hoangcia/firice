@@ -3,8 +3,12 @@
 #include <SDL.h>
 #include "GameObject.h"
 #include "CommonTypes.h"
+#include "GameEvent.h"
+#include <queue>
 
 enum CHARACTER_STATUS { None = 0, Idle = 1, Walking = 2, Attacking = 4, Jumping = 8, Running = 16 };
+
+enum CHAR_DIRECTION{Left = -1, Right = 1};
 
 class Mage :
 	public GameObject
@@ -19,13 +23,15 @@ public:
 
 	unsigned int Status;
 	unsigned long LastTime;
-	float Velocity;
+	float VelocityX;
 	float Acceleration;
+	float VelocityY;
+	CHAR_DIRECTION Direction;
 
-	void virtual update(unsigned long currentTime);
-	void update(unsigned long currentTime, Vector2 direction, float ax);
+	void update(unsigned long currentTime) override;
+	void update(unsigned long currentTime, std::queue<GameEvent> events, bool revertMoving);
 
-	void draw(SDL_Renderer* renderer, SDL_Texture* texture, SDL_RendererFlip flip);
+	void draw(SDL_Renderer* renderer, SDL_Texture* texture) override;
 };
 
 #endif

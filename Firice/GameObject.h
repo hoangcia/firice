@@ -15,7 +15,7 @@ public:
 	void setCenter(Point2 p);
 	Point2 getCenter() const { return center; };
 	Size size;
-	virtual void draw(SDL_Renderer* renderer, SDL_Texture* texture, SDL_RendererFlip flip);
+	virtual void draw(SDL_Renderer* renderer, SDL_Texture* texture);
 	virtual void update(unsigned long currentTime);
 };
 

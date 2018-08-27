@@ -22,7 +22,7 @@ void GameObject::setCenter(Point2 p)
 	center = p;
 }
 
-void GameObject::draw(SDL_Renderer * renderer, SDL_Texture * texture, SDL_RendererFlip flip)
+void GameObject::draw(SDL_Renderer * renderer, SDL_Texture * texture)
 {
 }
 void GameObject::update(unsigned long currentTime)

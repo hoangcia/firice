@@ -66,8 +66,7 @@ void Game::run()
 {
 	Uint32 startTime = 0;	
 	Uint32 count = 0;
-	Uint32 frameTime = 0;
-	currentCharDirection = { 1,0 };
+	Uint32 frameTime = 0;	
 
 	while(running())
 	{
@@ -88,12 +87,17 @@ void Game::run()
 void Game::processInput()
 {
 	SDL_Event event;
+	GameEvent e;
+	
 	const Uint8* keyStates = nullptr;
 	
 	ax = 0.0f;
 	
+
 	while(SDL_PollEvent(&event))
 	{
+		SDL_Scancode scancode = (SDL_Scancode)NULL;
+
 		switch (event.type)
 		{
 			case SDL_QUIT:
@@ -101,37 +105,51 @@ void Game::processInput()
 				break;
 			
 			case SDL_KEYUP:
-				switch(event.key.keysym.scancode)
+				 scancode = event.key.keysym.scancode;
+				switch(scancode)
 				{
-					case SDL_SCANCODE_SPACE: break;
+					case SDL_SCANCODE_SPACE:						
+						jumpingVelocity = CHAR_JUMPING_VELOCITY;
+						e.Type = CharacterJump;
+						e.Parameters.insert(std::make_pair("jumpingVelocity", jumpingVelocity));
+					break;
 
 					case SDL_SCANCODE_D:
 					case SDL_SCANCODE_RIGHT: 
 					case SDL_SCANCODE_A:
-					case SDL_SCANCODE_LEFT: 
-						ax = -CHAR_ACCELERATION;  
+					case SDL_SCANCODE_LEFT:						
+						e.Type = CharacterStopMoving;					
+						ax = -CHAR_MOVING_ACCELERATION;
+						e.Parameters.insert(std::make_pair("ax", ax));
+						e.Parameters.insert(std::make_pair("direction",  scancode == SDL_SCANCODE_A || scancode == SDL_SCANCODE_LEFT? Left : Right));
+						gameEvents.push(e);
+
 						break;
 					default: break;
 				}
 				break;
 			case SDL_KEYDOWN:
+				scancode = event.key.keysym.scancode;
 				switch (event.key.keysym.scancode)
 				{
-				case SDL_SCANCODE_SPACE: break;
+					case SDL_SCANCODE_SPACE: break;
 
-				case SDL_SCANCODE_D:
-				case SDL_SCANCODE_RIGHT:
-				case SDL_SCANCODE_A:
-				case SDL_SCANCODE_LEFT:
-					ax = CHAR_ACCELERATION;
-					break;
-				default: break;
+					case SDL_SCANCODE_D:
+					case SDL_SCANCODE_RIGHT:
+					case SDL_SCANCODE_A:
+					case SDL_SCANCODE_LEFT:
+						e.Type = CharacterMove;
+						ax = CHAR_MOVING_ACCELERATION;
+						e.Parameters.insert(std::make_pair("ax", ax));
+						e.Parameters.insert(std::make_pair("direction", scancode == SDL_SCANCODE_A || scancode == SDL_SCANCODE_LEFT ? Left : Right));
+						gameEvents.push(e);					
+						break;
+					default: break;
 				}
 				break;
 			default: break;
 		}
-
-		charDirection = { 0,0 };
+		
 		keyStates = SDL_GetKeyboardState(nullptr);
 
 		if (keyStates[SDL_SCANCODE_ESCAPE])
@@ -141,41 +159,27 @@ void Game::processInput()
 
 		if (keyStates[SDL_SCANCODE_A] || keyStates[SDL_SCANCODE_LEFT])
 		{
-			charDirection.x = -1;
-			currentCharDirection.x = -1;			
+			
+			e.Type = CharacterMove;
+			
+			e.Parameters.insert(std::make_pair("ax", ax));
+			e.Parameters.insert(std::make_pair("direction", CHAR_DIRECTION::Left));
+			gameEvents.push(e);
 		}
 		else if (keyStates[SDL_SCANCODE_D] || keyStates[SDL_SCANCODE_RIGHT])
 		{
-			charDirection.x = 1;
-			currentCharDirection.x = 1;			
+			
+			e.Type = CharacterMove;
+			e.Parameters.insert(std::make_pair("ax", ax));
+			e.Parameters.insert(std::make_pair("direction", CHAR_DIRECTION::Right));
+			gameEvents.push(e);
 		}
-		/*
-		if (keyStates[SDL_SCANCODE_W] || keyStates[SDL_SCANCODE_UP])
-		{
-			charDirection.y = -1;
-			currentCharDirection.y = -1;
-		}
-		else if (keyStates[SDL_SCANCODE_S] || keyStates[SDL_SCANCODE_DOWN])
-		{
-			charDirection.y = 1;
-			currentCharDirection.y = 1;
-		}
-		*/
 	}
 }
 void Game::update()
-{
-	Vector2 revertedDirectionX = { -1 * charDirection.x, charDirection.y };
-
-	if (charDirection.x != 0 || charDirection.y != 0) {
-		charFire->Status = CHARACTER_STATUS::Running; 
-		charIce->Status = CHARACTER_STATUS::Running;
-
-	}
-
-	charFire->update(SDL_GetTicks(), charDirection, ax);
-	charIce->update(SDL_GetTicks(), revertedDirectionX, ax);
-
+{			
+	charFire->update(SDL_GetTicks(), gameEvents, false);
+	charIce->update(SDL_GetTicks(), gameEvents, true);			
 }
 void Game::render()
 {
@@ -183,10 +187,8 @@ void Game::render()
 
 	SDL_SetRenderDrawColor(renderer, 34, 128, 200, SDL_ALPHA_OPAQUE);
 	
-	SDL_RendererFlip flip = currentCharDirection.x < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-
-	charFire->draw(renderer, fireTexture, flip);
-	charIce->draw(renderer, iceTexture, flip == SDL_FLIP_NONE ? SDL_FLIP_HORIZONTAL: SDL_FLIP_NONE);
+	charFire->draw(renderer, fireTexture);
+	charIce->draw(renderer, iceTexture);
 
 	SDL_RenderPresent(renderer);
 }

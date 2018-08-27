@@ -1,13 +1,13 @@
 #include "Mage.h"
 #include "Constants.h"
 
-
 Mage::Mage()
 {
 	currentAnimatedFrame = Point2{ 0,0 };
 	LastTime = 0;
 	Status = CHARACTER_STATUS::Idle;
-	Velocity = 0.0f;
+	VelocityX = 0.0f;
+	VelocityY = 0.0f;
 	Acceleration = 0.0f;
 }
 Mage::Mage(Size s, Point2 c):Mage()
@@ -27,51 +27,93 @@ void Mage::update(unsigned long currentTime) {
 		LastTime = currentTime;
 	}
 }
-void Mage::update(unsigned long currentTime, Vector2 direction, float ax)
+void Mage::update(unsigned long currentTime, std::queue<GameEvent> events, bool revertMoving)
 {
 	float deltaTime = (currentTime - LastTime) / 1000.0f;
+	float ax = 0.0f;
+
 	if(deltaTime > 0.05f)
 	{
 		deltaTime = 0.05f;
+	}	
+
+	while(!events.empty())
+	{
+		GameEvent event = events.front();
+		switch(event.Type)
+		{
+			case GAME_EVENT_TYPE::Nothing: break;
+
+			case GAME_EVENT_TYPE::CharacterStopMoving:
+			case GAME_EVENT_TYPE::CharacterMove:
+				Status = CHARACTER_STATUS::Running;
+				ax = event.Parameters["ax"];
+				Direction = static_cast<CHAR_DIRECTION>(static_cast<int>(event.Parameters["direction"]));				
+
+				Acceleration = ax;
+			
+				break;
+			
+				
+			case GAME_EVENT_TYPE::CharacterJump:
+				//VelocityY = event.Parameters["jumpingVelocity"];
+
+				break;
+
+			default: break;
+		}
+		events.pop();
 	}
 
-	
-	Acceleration = ax != 0.0f ? ax : Acceleration;
+	/*Update movement velocity*/
+	if (revertMoving) Direction = static_cast<CHAR_DIRECTION>(-1 * Direction);
 
-	Velocity += Acceleration;
+	VelocityX += Acceleration;
 
-	if (Velocity < 0.0f) {
-		Velocity = 0.0f;
+	if (VelocityX < 0.0f) {
+		VelocityX = 0.0f;
+		Acceleration = 0.0f;
 		Status = CHARACTER_STATUS::Idle;
 	}
-	else if (Velocity > CHAR_MAX_VELOCITYX)
+	else if (VelocityX > CHAR_MAX_VELOCITY)
 	{
-		Velocity = CHAR_MAX_VELOCITYX;
+		VelocityX = CHAR_MAX_VELOCITY;
 	}
+	/*Update jumping velocity*/
+	//VelocityY += deltaTime*GAME_GRAVITY;
 
-	Point2 newPos = { center.x + deltaTime * Velocity * direction.x , center.y + deltaTime * CHAR_VELOCITYY * direction.y };
+	/*Set new position*/
+	Point2 newPos = { center.x + deltaTime * VelocityX * Direction , center.y + deltaTime*VelocityY};
 	//check round border
-	if (newPos.x > (size.width / 2) &&
-		newPos.y > (size.height / 2) &&
-		newPos.x + size.width / 2 < DEFAULT_SCREEN_WIDTH &&
-		newPos.y + size.height / 2 < DEFAULT_SCREEN_HEIGHT
+	if (newPos.x > (size.width / 2) &&		
+		newPos.x + size.width / 2 < DEFAULT_SCREEN_WIDTH		
 		)
-	{
-		Status = CHARACTER_STATUS::Running;
-		setCenter(newPos.x, newPos.y);
+	{		
+		setCenter(newPos.x, center.y);
 	}
 	else
 	{
 		Acceleration = 0.0f;
-		Velocity = 0.0f;
+		VelocityX = 0.0f;
 		Status = CHARACTER_STATUS::Idle;
+	}
+
+	if(newPos.y > (size.height / 2) && 
+		newPos.y + size.height / 2 < DEFAULT_SCREEN_HEIGHT)
+	
+	{
+		setCenter(center.x, newPos.y);
+	}
+	else
+	{
+		VelocityY = 0.0f;		
 	}
 	
 	update(currentTime);
 }
-void  Mage::draw(SDL_Renderer* renderer, SDL_Texture* texture, SDL_RendererFlip flip) {
+void Mage::draw(SDL_Renderer* renderer, SDL_Texture* texture) {
 	SDL_Rect srcRect = { currentAnimatedFrame.x * size.width, currentAnimatedFrame.y * size.height, size.width, size.height};
 	SDL_Rect dstRect = { center.x - (size.width / 2), center.y - (size.height / 2), size.width, size.height };
-
+	SDL_RendererFlip flip = Direction == CHAR_DIRECTION::Left ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 	SDL_RenderCopyEx(renderer, texture, &srcRect, &dstRect, 0, nullptr, flip);
 }

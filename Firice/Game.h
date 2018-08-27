@@ -3,14 +3,14 @@
 #include "CommonTypes.h"
 #include <SDL.h>
 #include "Mage.h"
+#include <queue>
 
 
 class Game
 {
 private:
-	bool isRunning;
-	Vector2 charDirection;
-	Vector2 currentCharDirection;
+	bool isRunning;	
+	float jumpingVelocity;
 
 	float ax = 0.0f;
 
@@ -23,6 +23,8 @@ private:
 
 	class Mage* charFire;
 	class Mage* charIce;
+
+	std::queue<GameEvent> gameEvents;
 
 public:
 	Game();
