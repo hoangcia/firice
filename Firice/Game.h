@@ -12,6 +12,8 @@ private:
 	Vector2 charDirection;
 	Vector2 currentCharDirection;
 
+	float ax = 0.0f;
+
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	SDL_Texture* fireTexture;

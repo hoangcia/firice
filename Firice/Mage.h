@@ -9,6 +9,7 @@ enum CHARACTER_STATUS { None = 0, Idle = 1, Walking = 2, Attacking = 4, Jumping 
 class Mage :
 	public GameObject
 {
+	
 public:
 	Mage();
 	Mage(Size s, Point2 c);
@@ -18,8 +19,11 @@ public:
 
 	unsigned int Status;
 	unsigned long LastTime;
+	float Velocity;
+	float Acceleration;
+
 	void virtual update(unsigned long currentTime);
-	void update(unsigned long currentTime, Vector2 direction);
+	void update(unsigned long currentTime, Vector2 direction, float ax);
 
 	void draw(SDL_Renderer* renderer, SDL_Texture* texture, SDL_RendererFlip flip);
 };

@@ -8,6 +8,9 @@ const unsigned int DEFAULT_SCREEN_WIDTH = 1024;
 const unsigned int DEFAULT_SCREEN_HEIGHT = 768;
 const unsigned int ANIMATED_FRAME_WIDTH = 98;
 const unsigned int ANIMATED_FRAME_HEIGHT = 90;
-const float CHAR_VELOCITY = 120.0f;
+const float CHAR_MAX_VELOCITYX = 120.0f;
+const float CHAR_VELOCITYY = 300.0f;
+const float CHAR_GRAVITY = 100.0f;
+const float CHAR_ACCELERATION = 10.0f;
 
 #endif
