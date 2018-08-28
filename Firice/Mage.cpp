@@ -55,20 +55,18 @@ void Mage::update(unsigned long currentTime, std::queue<GameEvent> events, bool 
 
 			case GAME_EVENT_TYPE::CharacterStopMoving:
 			case GAME_EVENT_TYPE::CharacterMove:
-				Status = Status ^ Idle;
+				if((Status & Idle) == Idle) Status = Status ^ Idle;
 				Status = Status | Running;
 				ax = event.Parameters["ax"];
 				DirectionX = static_cast<CHAR_DIRECTION_X>(static_cast<int>(event.Parameters["direction"]));				
 
 				Acceleration = ax;
 			
-				break;
-			
+				break;			
 				
 			case GAME_EVENT_TYPE::CharacterJump:
 				if ((Status & Jumping) != Jumping && (Status & Falling) != Falling)
 				{
-
 					Status = Status | Jumping;
 					VelocityY = event.Parameters["jumpingVelocity"];
 				}
@@ -81,28 +79,29 @@ void Mage::update(unsigned long currentTime, std::queue<GameEvent> events, bool 
 
 	/*Update movement velocity*/
 	
-	if (revertMoving && !isGameEventsEmpty) DirectionX = static_cast<CHAR_DIRECTION_X>(-1 * DirectionX);
-	DirectionY = ((Status & Jumping) == Jumping ? Up : (Status & Falling) == Falling ? Down : NoneY);
+	if (revertMoving && !isGameEventsEmpty) DirectionX = static_cast<CHAR_DIRECTION_X>(-1 * DirectionX);	
 
 	VelocityX += Acceleration;
 
 	if (VelocityX < 0.0f) {
 		VelocityX = 0.0f;
 		Acceleration = 0.0f;
-		Status = Status ^ Running;
+		if((Status & Running) == Running)Status = Status ^ Running;
 		Status = Status | Idle;
 	}
 	else if (VelocityX > CHAR_MAX_VELOCITY)
 	{
+		Status = Status | Running;
 		VelocityX = CHAR_MAX_VELOCITY;
 	}
 	/*Update jumping velocity*/
+	DirectionY = ((Status & Jumping) == Jumping ? Up : (Status & Falling) == Falling ? Down : NoneY);
 
 	if ((Status & Jumping) == Jumping)
 	{
 		VelocityY -= (GAME_GRAVITY);
 	}
-	else if (Status == Falling) {
+	else if ((Status & Falling )== Falling) {
 		VelocityY += (GAME_GRAVITY);
 	}
 
@@ -112,10 +111,10 @@ void Mage::update(unsigned long currentTime, std::queue<GameEvent> events, bool 
 		Status = Status | Falling;
 	}
 	/*Set new position*/
-	Point2 newPos = { center.x + deltaTime * VelocityX * DirectionX , center.y + deltaTime*VelocityY * DirectionY};
+	Point2 const newPos = { center.x + deltaTime * VelocityX * DirectionX , center.y + deltaTime*VelocityY * DirectionY};
 	//check round border
-	if (newPos.x > (size.width / 2) &&		
-		newPos.x + size.width / 2 < DEFAULT_SCREEN_WIDTH		
+	if (newPos.x >= (size.width / 2) &&		
+		newPos.x + size.width / 2 <= DEFAULT_SCREEN_WIDTH		
 		)
 	{		
 
@@ -128,12 +127,21 @@ void Mage::update(unsigned long currentTime, std::queue<GameEvent> events, bool 
 	{
 		Acceleration = 0.0f;
 		VelocityX = 0.0f;
-		Status = Status ^ Running;
+		if((newPos.x + (size.width / 2)) > DEFAULT_SCREEN_WIDTH)
+		{
+			setCenter(DEFAULT_SCREEN_WIDTH - (size.width / 2), center.y);
+		}
+		else
+		{
+			setCenter(size.width / 2, center.y);
+		}
+		if((Status & Running) == Running) Status = Status ^ Running;
+
 		Status = Status | Idle;
 	}
 
-	if(newPos.y > (size.height / 2) && 
-		newPos.y + size.height / 2 < DEFAULT_SCREEN_HEIGHT)
+	if(newPos.y >= (size.height / 2) && 
+		newPos.y + size.height / 2 <= DEFAULT_SCREEN_HEIGHT)
 	
 	{
 		//detect collision
@@ -144,17 +152,23 @@ void Mage::update(unsigned long currentTime, std::queue<GameEvent> events, bool 
 	else
 	{		
 		VelocityY = 0.0f;
-		if (newPos.y <= (size.height / 2))
+		
+		if (newPos.y < (size.height / 2))
 		{
-			Status = Status ^ Jumping;
+			if(Status & Jumping) Status = Status ^ Jumping;
 			Status = Status | Falling;
+			setCenter(center.x, size.height / 2);
 		}
 		else {
-			Status = Status ^ Falling;
-			if (isGameEventsEmpty) {
-				Status = Status ^ Running;
-				Status = Status | Idle;
+			setCenter(center.x, DEFAULT_SCREEN_HEIGHT - size.height / 2);
+
+			if((Status & Falling) == Falling) Status = Status ^ Falling;
+			/*
+			if (isGameEventsEmpty && (Status & Running) == Running) {
+					Status = Status ^ Running;
+					Status = Status | Idle;				
 			}
+			*/
 		}
 	}
 	

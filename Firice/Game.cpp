@@ -87,7 +87,7 @@ void Game::run()
 void Game::processInput()
 {
 	SDL_Event event;
-	GameEvent e;
+	GameEvent* e = nullptr;
 	
 	const Uint8* keyStates = nullptr;
 	
@@ -108,22 +108,27 @@ void Game::processInput()
 				 scancode = event.key.keysym.scancode;
 				switch(scancode)
 				{
-					case SDL_SCANCODE_SPACE:						
+					case SDL_SCANCODE_SPACE:
+						delete e;
+						e = new GameEvent;
+
 						jumpingVelocity = CHAR_JUMPING_VELOCITY;
-						e.Type = CharacterJump;
-						e.Parameters.insert(std::make_pair("jumpingVelocity", jumpingVelocity));
-						gameEvents.push(e);
+						e->Type = CharacterJump;
+						e->Parameters.insert(std::make_pair("jumpingVelocity", jumpingVelocity));
+						gameEvents.push(*e);
 					break;
 
 					case SDL_SCANCODE_D:
 					case SDL_SCANCODE_RIGHT: 
 					case SDL_SCANCODE_A:
-					case SDL_SCANCODE_LEFT:						
-						e.Type = CharacterStopMoving;					
+					case SDL_SCANCODE_LEFT:
+						delete e;
+						e = new GameEvent;
+						e->Type = CharacterStopMoving;					
 						ax = -CHAR_MOVING_ACCELERATION;
-						e.Parameters.insert(std::make_pair("ax", ax));
-						e.Parameters.insert(std::make_pair("direction",  scancode == SDL_SCANCODE_A || scancode == SDL_SCANCODE_LEFT? Left : Right));
-						gameEvents.push(e);
+						e->Parameters.insert(std::make_pair("ax", ax));
+						e->Parameters.insert(std::make_pair("direction",  scancode == SDL_SCANCODE_A || scancode == SDL_SCANCODE_LEFT? Left : Right));
+						gameEvents.push(*e);
 
 						break;
 					default: break;
@@ -137,43 +142,50 @@ void Game::processInput()
 					case SDL_SCANCODE_RIGHT:
 					case SDL_SCANCODE_A:
 					case SDL_SCANCODE_LEFT:
-						e.Type = CharacterMove;
+						delete e;
+						e = new GameEvent;
+						e->Type = CharacterMove;
 						ax = CHAR_MOVING_ACCELERATION;
-						e.Parameters.insert(std::make_pair("ax", ax));
-						e.Parameters.insert(std::make_pair("direction", scancode == SDL_SCANCODE_A || scancode == SDL_SCANCODE_LEFT ? Left : Right));
-						gameEvents.push(e);					
+						e->Parameters.insert(std::make_pair("ax", ax));
+						e->Parameters.insert(std::make_pair("direction", scancode == SDL_SCANCODE_A || scancode == SDL_SCANCODE_LEFT ? Left : Right));
+						gameEvents.push(*e);					
 						break;
 					default: break;
 				}
 				break;
 			default: break;
-		}
-		
-		keyStates = SDL_GetKeyboardState(nullptr);
+		}				
+	}
 
-		if (keyStates[SDL_SCANCODE_ESCAPE])
-		{
-			isRunning = false;
-		}
+	keyStates = SDL_GetKeyboardState(nullptr);
 
-		if (keyStates[SDL_SCANCODE_A] || keyStates[SDL_SCANCODE_LEFT])
-		{
-			
-			e.Type = CharacterMove;
-			
-			e.Parameters.insert(std::make_pair("ax", ax));
-			e.Parameters.insert(std::make_pair("direction", CHAR_DIRECTION_X::Left));
-			gameEvents.push(e);
-		}
-		else if (keyStates[SDL_SCANCODE_D] || keyStates[SDL_SCANCODE_RIGHT])
-		{
-			
-			e.Type = CharacterMove;
-			e.Parameters.insert(std::make_pair("ax", ax));
-			e.Parameters.insert(std::make_pair("direction", CHAR_DIRECTION_X::Right));
-			gameEvents.push(e);
-		}
-	}	
+	if (keyStates[SDL_SCANCODE_ESCAPE])
+	{
+		isRunning = false;
+	}
+
+	if (keyStates[SDL_SCANCODE_A] || keyStates[SDL_SCANCODE_LEFT])
+	{
+		delete e;
+		e = new GameEvent;
+		e->Type = CharacterMove;
+		ax = CHAR_MOVING_ACCELERATION;
+		e->Parameters.insert(std::make_pair("ax", ax));
+		e->Parameters.insert(std::make_pair("direction", CHAR_DIRECTION_X::Left));
+		gameEvents.push(*e);
+	}
+	else if (keyStates[SDL_SCANCODE_D] || keyStates[SDL_SCANCODE_RIGHT])
+	{
+		delete e;
+		e = new GameEvent;
+		e->Type = CharacterMove;
+		ax = CHAR_MOVING_ACCELERATION;
+		e->Parameters.insert(std::make_pair("ax", ax));
+		e->Parameters.insert(std::make_pair("direction", CHAR_DIRECTION_X::Right));
+		gameEvents.push(*e);
+	}
+	delete e;
+	e = nullptr;
 }
 void Game::update()
 {			
