@@ -6,9 +6,10 @@
 #include "GameEvent.h"
 #include <queue>
 
-enum CHARACTER_STATUS { None = 0, Idle = 1, Walking = 2, Attacking = 4, Jumping = 8, Running = 16 };
+enum CHARACTER_STATUS { None = 0, Idle = 1, Walking = 2, Attacking = 4, Jumping = 8, Running = 16, Falling = 32 };
 
-enum CHAR_DIRECTION{Left = -1, Right = 1};
+enum CHAR_DIRECTION_X {NoneX= 0, Left = -1, Right = 1};
+enum CHAR_DIRECTION_Y {NoneY = 0, Up = -1, Down = 1 };
 
 class Mage :
 	public GameObject
@@ -26,7 +27,9 @@ public:
 	float VelocityX;
 	float Acceleration;
 	float VelocityY;
-	CHAR_DIRECTION Direction;
+	CHAR_DIRECTION_X DirectionX;
+	CHAR_DIRECTION_Y DirectionY;
+
 
 	void update(unsigned long currentTime) override;
 	void update(unsigned long currentTime, std::queue<GameEvent> events, bool revertMoving);

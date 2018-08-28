@@ -10,7 +10,7 @@ const unsigned int ANIMATED_FRAME_WIDTH = 98;
 const unsigned int ANIMATED_FRAME_HEIGHT = 90;
 const float CHAR_MAX_VELOCITY = 150.0f;
 const float CHAR_MOVING_ACCELERATION = 5.0f;
-const float CHAR_JUMPING_VELOCITY = 300.0F;
+const float CHAR_JUMPING_VELOCITY = 300.0f;
 
-const float GAME_GRAVITY = 50.0f;
+const float GAME_GRAVITY = 20.0f;
 #endif

@@ -112,6 +112,7 @@ void Game::processInput()
 						jumpingVelocity = CHAR_JUMPING_VELOCITY;
 						e.Type = CharacterJump;
 						e.Parameters.insert(std::make_pair("jumpingVelocity", jumpingVelocity));
+						gameEvents.push(e);
 					break;
 
 					case SDL_SCANCODE_D:
@@ -131,9 +132,7 @@ void Game::processInput()
 			case SDL_KEYDOWN:
 				scancode = event.key.keysym.scancode;
 				switch (event.key.keysym.scancode)
-				{
-					case SDL_SCANCODE_SPACE: break;
-
+				{					
 					case SDL_SCANCODE_D:
 					case SDL_SCANCODE_RIGHT:
 					case SDL_SCANCODE_A:
@@ -163,7 +162,7 @@ void Game::processInput()
 			e.Type = CharacterMove;
 			
 			e.Parameters.insert(std::make_pair("ax", ax));
-			e.Parameters.insert(std::make_pair("direction", CHAR_DIRECTION::Left));
+			e.Parameters.insert(std::make_pair("direction", CHAR_DIRECTION_X::Left));
 			gameEvents.push(e);
 		}
 		else if (keyStates[SDL_SCANCODE_D] || keyStates[SDL_SCANCODE_RIGHT])
@@ -171,15 +170,20 @@ void Game::processInput()
 			
 			e.Type = CharacterMove;
 			e.Parameters.insert(std::make_pair("ax", ax));
-			e.Parameters.insert(std::make_pair("direction", CHAR_DIRECTION::Right));
+			e.Parameters.insert(std::make_pair("direction", CHAR_DIRECTION_X::Right));
 			gameEvents.push(e);
 		}
-	}
+	}	
 }
 void Game::update()
 {			
 	charFire->update(SDL_GetTicks(), gameEvents, false);
-	charIce->update(SDL_GetTicks(), gameEvents, true);			
+	charIce->update(SDL_GetTicks(), gameEvents, true);
+	//clear gameEvents for next loop
+	while(!gameEvents.empty())
+	{
+		gameEvents.pop();
+	}
 }
 void Game::render()
 {

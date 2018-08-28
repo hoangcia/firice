@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 
-enum GAME_EVENT_TYPE { Nothing, CharacterMove, CharacterStopMoving, CharacterJump };
+enum GAME_EVENT_TYPE { Nothing, CharacterIdle, CharacterMove, CharacterStopMoving, CharacterJump };
 
 class GameEvent
 {
