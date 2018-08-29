@@ -1,10 +1,11 @@
 #ifndef MAGE_H
 #define MAGE_H
 #include <SDL.h>
+#include <queue>
 #include "GameObject.h"
 #include "CommonTypes.h"
 #include "GameEvent.h"
-#include <queue>
+#include "Map.h"
 
 enum CHARACTER_STATUS { None = 0, Idle = 1, Walking = 2, Attacking = 4, Jumping = 8, Running = 16, Falling = 32 };
 
@@ -15,11 +16,13 @@ class Mage :
 	public GameObject
 {
 	
+private:
+	class Map* map;
 public:
 	Mage();
 	Mage(Size s, Point2 c);
 	~Mage();
-
+	
 	Vector2 currentAnimatedFrame;		
 
 	unsigned int Status;
@@ -30,7 +33,8 @@ public:
 	CHAR_DIRECTION_X DirectionX;
 	CHAR_DIRECTION_Y DirectionY;
 
-
+	void setMap(Map* m);
+	
 	void update(unsigned long currentTime) override;
 	void update(unsigned long currentTime, std::queue<GameEvent> events, bool revertMoving);
 

@@ -4,6 +4,7 @@
 
 Map::Map()
 {
+	blocks = nullptr;
 }
 
 Map::Map(Size s, Point2 c)

@@ -3,6 +3,8 @@
 class Map :
 	public GameObject
 {
+private:
+	class Block* blocks;
 public:
 	Map();
 	Map(Size s, Point2 c);

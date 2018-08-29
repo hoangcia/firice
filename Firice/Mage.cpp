@@ -19,6 +19,11 @@ Mage::Mage(Size s, Point2 c):Mage()
 Mage::~Mage()
 {
 }
+void Mage::setMap(Map* m)
+{
+	map = m;
+}
+
 void Mage::update(unsigned long currentTime) {
 	
 	if ((currentTime - LastTime) > (1000 / (LIMIT_ANIMATED_FPS * (1 + static_cast<int>(log2(Status)))))) {
