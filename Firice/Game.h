@@ -16,13 +16,18 @@ private:
 
 	SDL_Window* window;
 	SDL_Renderer* renderer;
+	
 	SDL_Texture* fireTexture;
 	SDL_Texture* iceTexture;
+	SDL_Texture* mapTexture;
+	
 	SDL_Surface* fireSurface;
 	SDL_Surface* iceSurface;
-
+	SDL_Surface* mapSurface;
+	
 	class Mage* charFire;
 	class Mage* charIce;
+	class Map*  map;
 
 	std::queue<GameEvent> gameEvents;
 

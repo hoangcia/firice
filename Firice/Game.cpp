@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include <SDL_image.h>
 #include "Mage.h"
+#include "Map.h"
 
 Game::Game()
 {
@@ -10,10 +11,15 @@ Game::Game()
 	renderer = nullptr;
 	iceSurface = nullptr;
 	fireSurface = nullptr;
+	mapSurface = nullptr;
+
 	iceTexture = nullptr;
 	fireTexture = nullptr;
+	mapTexture = nullptr;
+
 	charFire = nullptr;
 	charIce = nullptr;
+	
 }
 
 
@@ -51,8 +57,13 @@ bool Game::initialize(const char* title, Point2 position, Size screenSize, int f
 	iceSurface = IMG_Load(".\\assets\\bluemage.png");
 	iceTexture = SDL_CreateTextureFromSurface(renderer, iceSurface);
 
+
+	mapSurface = IMG_Load(".\\assets\\BG.png");
+	mapTexture = SDL_CreateTextureFromSurface(renderer, mapSurface);
+
 	charFire = new Mage(Size{ ANIMATED_FRAME_WIDTH, ANIMATED_FRAME_HEIGHT }, Point2{100,500});
 	charIce = new Mage(Size{ ANIMATED_FRAME_WIDTH, ANIMATED_FRAME_HEIGHT }, Point2{600,500});
+	map = new Map(Size{DEFAULT_SCREEN_WIDTH,DEFAULT_SCREEN_HEIGHT}, Point2{DEFAULT_SCREEN_WIDTH / 2, DEFAULT_SCREEN_HEIGHT / 2});
 
 	//initialize game objects
 	charFire->LastTime = SDL_GetTicks();
@@ -202,9 +213,12 @@ void Game::render()
 	SDL_RenderClear(renderer);
 
 	SDL_SetRenderDrawColor(renderer, 34, 128, 200, SDL_ALPHA_OPAQUE);
-	
+
+	map->draw(renderer, mapTexture);
+
 	charFire->draw(renderer, fireTexture);
 	charIce->draw(renderer, iceTexture);
+	
 
 	SDL_RenderPresent(renderer);
 }
