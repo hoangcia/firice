@@ -1,13 +1,12 @@
 #include "Map.h"
 
 
-
 Map::Map()
 {
 	blocks = nullptr;
 }
 
-Map::Map(Size s, Point2 c)
+Map::Map(Size s, Point2 c):Map()
 {
 	center = c;
 	size = s;
@@ -15,6 +14,7 @@ Map::Map(Size s, Point2 c)
 
 Map::~Map()
 {
+	delete blocks;
 }
 void Map::update(unsigned long currentTime)
 {

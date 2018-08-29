@@ -1,5 +1,7 @@
 #pragma once
 #include "GameObject.h"
+#include "Block.h"
+
 class Map :
 	public GameObject
 {

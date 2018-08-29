@@ -18,6 +18,7 @@ Mage::Mage(Size s, Point2 c):Mage()
 
 Mage::~Mage()
 {
+	delete map;
 }
 void Mage::setMap(Map* m)
 {
