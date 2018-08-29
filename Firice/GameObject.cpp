@@ -11,7 +11,7 @@ GameObject::~GameObject()
 {
 }
 
-void GameObject::setCenter(int x, int y)
+void GameObject::setCenter(float x, float y)
 {
 	center.x = x;
 	center.y = y;

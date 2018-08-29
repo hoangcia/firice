@@ -11,7 +11,7 @@ public:
 	GameObject();
 	virtual ~GameObject();
 
-	void setCenter(int x, int y);
+	void setCenter(float x, float y);
 	void setCenter(Point2 p);
 	Point2 getCenter() const { return center; };
 	Size size;

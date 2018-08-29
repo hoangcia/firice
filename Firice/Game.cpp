@@ -30,7 +30,7 @@ bool Game::initialize(const char* title, Point2 position, Size screenSize, int f
 		SDL_Log("Failed to init SDL: %s", SDL_GetError());
 		return false;
 	}
-	window = SDL_CreateWindow(title, position.x, position.y, screenSize.width, screenSize.height, flags);
+	window = SDL_CreateWindow(title, static_cast<int>(position.x), static_cast<int>(position.y), screenSize.width, screenSize.height, flags);
 	
 	if(!window)
 	{
@@ -51,8 +51,8 @@ bool Game::initialize(const char* title, Point2 position, Size screenSize, int f
 	iceSurface = IMG_Load(".\\assets\\bluemage.png");
 	iceTexture = SDL_CreateTextureFromSurface(renderer, iceSurface);
 
-	charFire = new Mage(Size{ ANIMATED_FRAME_WIDTH, ANIMATED_FRAME_HEIGHT }, Point2{100,100});
-	charIce = new Mage(Size{ ANIMATED_FRAME_WIDTH, ANIMATED_FRAME_HEIGHT }, Point2{300,300});
+	charFire = new Mage(Size{ ANIMATED_FRAME_WIDTH, ANIMATED_FRAME_HEIGHT }, Point2{100,500});
+	charIce = new Mage(Size{ ANIMATED_FRAME_WIDTH, ANIMATED_FRAME_HEIGHT }, Point2{600,500});
 
 	//initialize game objects
 	charFire->LastTime = SDL_GetTicks();
@@ -136,7 +136,7 @@ void Game::processInput()
 				break;
 			case SDL_KEYDOWN:
 				scancode = event.key.keysym.scancode;
-				switch (event.key.keysym.scancode)
+				switch (scancode)
 				{					
 					case SDL_SCANCODE_D:
 					case SDL_SCANCODE_RIGHT:

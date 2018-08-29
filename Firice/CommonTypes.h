@@ -2,8 +2,8 @@
 #define COMMON_TYPES_H
 struct Point2
 {
-	int x;
-	int y;
+	float x;
+	float y;
 };
 struct Vector2 {
 	int x;

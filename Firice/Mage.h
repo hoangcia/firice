@@ -20,7 +20,7 @@ public:
 	Mage(Size s, Point2 c);
 	~Mage();
 
-	Point2 currentAnimatedFrame;		
+	Vector2 currentAnimatedFrame;		
 
 	unsigned int Status;
 	unsigned long LastTime;
